@@ -1,0 +1,57 @@
+#region 跑马灯效果方法
+/// <summary>
+/// 文字进入左侧后从右侧出来
+/// </summary>
+private void LabelRun()
+{
+    if ((lbMsg.Location.X + lbMsg.Width) > 0)
+    {
+        lbMsg.Left = lbMsg.Left - 2;
+    }
+    else//设置文字初始位置
+    {
+        lbMsg.Left = pBox.Width;
+    }
+}
+bool flag = true;//标记文字滚动防线  true--往左  false--往右
+/// <summary>
+/// 文字在容器内来回碰撞
+/// </summary>
+private void LabelRunEx()
+{
+    if (flag)
+    {
+        if (lbMsg.Left > 0)//判断文字开端是否碰撞到了容器左侧边缘
+        {
+            lbMsg.Left = lbMsg.Left - 5;
+            if (lbMsg.Left <= 0)
+            {
+                flag = false;
+            }
+        }
+    }
+    else
+    {
+        lbMsg.Left = lbMsg.Left + 5;
+        if (lbMsg.Left >= pBox.Width - lbMsg.Width)//判断文字末尾是否碰撞到了容器右侧边缘
+        {
+            flag = true;
+        }
+    }
+}
+#endregion
+ 
+#region 跑马灯线程  调用
+ new Thread(() =>
+ {
+     while (true)
+     {
+         try
+         {
+             LabelRun();
+         }
+         catch { }
+         Thread.Sleep(50);
+     }
+ }) { IsBackground = true }.Start();
+#endregion

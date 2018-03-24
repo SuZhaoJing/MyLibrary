@@ -1,0 +1,67 @@
+
+
+webbrowser与js交互 js调用C#方法
+
+
+using System; 
+using System.Collections.Generic; 
+using System.ComponentModel; 
+using System.Data; 
+using System.Drawing; 
+using System.Text; 
+using System.Windows.Forms; 
+using System.IO; 
+using System.Runtime.InteropServices;  //记得u这俩. 
+using System.Security.Permissions;//记得u这俩.  
+   
+namespace test 
+{ 
+   
+    [PermissionSet(SecurityAction.Demand, Name ="FullTrust")] 
+    [ComVisible(true)]//com+可见 
+    public partial class Form1 : Form 
+    { 
+        public Form1() 
+        { 
+            InitializeComponent(); 
+        } 
+   
+        private void button1_Click(object sender, EventArgs e) 
+        { 
+            webBrowser1.Document.InvokeScript("Run", new object[] { "CShareFunction" }); 
+        } 
+           
+        private void Form1_Load(object sender, EventArgs e) 
+        {  
+            webBrowser1.ObjectForScripting = this;//具体公开的对象,这里可以公开自定义对象 
+            webBrowser1.Navigate(Application.StartupPath + "/dom.html");  
+        } 
+   
+        public void ShowMsg(string msg) 
+        { 
+            MessageBox.Show(msg); 
+              
+        } 
+   
+    } 
+}
+
+
+
+
+Html部分:
+
+<html> 
+  <head>       
+  </head> 
+  <body>  
+  </body> 
+       
+   <script type="text/javascript" charset="utf-8"> 
+    function Run(str) 
+   { 
+       
+        window.external.ShowMsg(str); 
+   } 
+   </script> 
+   </html>

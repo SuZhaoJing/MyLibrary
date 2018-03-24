@@ -1,0 +1,166 @@
+   /// <summary> 
+   /// 当串口接收到数据时，会产生一个事件。 
+   /// SerialDataArgs就是该事件的参数，参数中的RecvData包含接收到的数据。 
+   /// 修改记录： 
+   /// 2015-08-21 
+   /// 新增字符串与字节之间的互相转化 
+   /// 使用方法： 
+   ///SerialPortEx.OnDataReceived+=***即可 
+   /// </summary> 
+   public class ReceivedDataArgs : EventArgs 
+   { 
+ 
+       static System.Text.UTF8Encoding _converter = new System.Text.UTF8Encoding();//支持中文 
+ 
+       /// <summary> 
+       /// 接收到的数据组成的字节数组 
+       /// </summary> 
+       private byte[] recvData; 
+ 
+       /// <summary> 
+       /// 构造函数,需要一个包含数据的byte[]作为初始化参数来实例化 SerialDataArgs 
+       /// </summary> 
+       /// <param name="_recvData">接收到的数据</param> 
+       public ReceivedDataArgs(byte[] _recvData) 
+       { 
+           if (_recvData == null) 
+           { 
+               throw (new ArgumentNullException("recvData数据为null")); 
+           } 
+           this.recvData = _recvData; 
+       } 
+ 
+       /// <summary> 
+       /// 返回接收到的数据内容btye[]形式 
+       /// </summary> 
+       public byte[] RecvData 
+       { 
+           get
+           { 
+               return recvData; 
+           } 
+       } 
+       /// <summary> 
+       /// 返回操作系统当前ANSI代码页的编码形式接收数据 
+       /// </summary> 
+       public string EncodingDefaultData 
+       { 
+           get
+           { 
+               string strtemp = Encoding.Default.GetString(recvData); 
+               if (strtemp.Length > 2) 
+               { 
+                   if (strtemp.Substring(strtemp.Length - 2).IndexOf("\r\n") != -1) 
+                   { 
+                       strtemp = strtemp.Substring(0, strtemp.Length - 2); 
+                   } 
+               } 
+               return strtemp; 
+           } 
+       } 
+ 
+       /// <summary> 
+       /// 返回十六进制形式接收数据 
+       /// </summary> 
+       public string HexData 
+       { 
+           get { return ByteToHexString(recvData); } 
+       } 
+       /// <summary> 
+       /// 返回字符串接收数据，支持中文,该字符串如果末尾有\r\n换行符，已自动去除 
+       /// </summary> 
+       public string UTF8Data 
+       { 
+           get
+           { 
+               string strtemp = _converter.GetString(recvData); 
+               if (strtemp.Length > 2) 
+               { 
+                   if (strtemp.Substring(strtemp.Length - 2).IndexOf("\r\n") != -1) 
+                   { 
+                       strtemp = strtemp.Substring(0, strtemp.Length - 2); 
+                   } 
+               } 
+               return strtemp; 
+           } 
+       } 
+ 
+       #region 字节数组转化为十六进制 
+       /// <summary> 
+       /// 字节数组转化为十六进制 
+       /// </summary> 
+       /// <param name="InBytes">字节数组</param> 
+       /// <returns></returns> 
+       public static string ByteToHexString(byte[] InBytes) 
+       { 
+           StringBuilder sb = new StringBuilder(); 
+           foreach (byte InByte in InBytes) 
+           { 
+               sb.Append(String.Format("{0:X2} ", InByte)); 
+           } 
+           return sb.ToString(); 
+       } 
+       #endregion 
+ 
+       #region 字节数组转化为十六进制（指定长度） 
+       /// <summary> 
+       /// 字节数组转化为十六进制（指定长度） 
+       /// </summary> 
+       /// <param name="InBytes">字节数组</param> 
+       /// <param name="len"></param> 
+       /// <returns></returns> 
+       public static string ByteToHexString(byte[] InBytes, int len) 
+       { 
+           StringBuilder sb = new StringBuilder(); 
+           for (int i = 0; i < len; i++) 
+           { 
+               sb.Append(String.Format("{0:X2} ", InBytes)); 
+           } 
+           return sb.ToString(); 
+       } 
+       #endregion 
+ 
+       #region 十六进制字符串转换成字节型 
+       /// <summary> 
+       /// 十六进制字符串转换成字节型   
+       /// </summary> 
+       /// <param name="InHexString">十六进制字符串</param> 
+       /// <returns></returns> 
+       public static byte[] HexStringToByte(string InHexString) { 
+           string[] ByteStrings; 
+           ByteStrings = InHexString.Split(" ".ToCharArray()); 
+           byte[] ByteOut; 
+           ByteOut = new byte[ByteStrings.Length - 1]; 
+           for (int i = 0; i == ByteStrings.Length - 1; i++) { 
+               ByteOut[i] = Convert.ToByte(("0x" + ByteStrings)); 
+           } 
+           return ByteOut; 
+       } 
+       #endregion 
+ 
+ 
+       #region 字符串转换成字节型 
+       /// <summary> 
+       /// 字符串(支持中文)转换成字节型 
+       /// </summary> 
+       /// <param name="InString">字符串</param> 
+       /// <returns></returns> 
+       public static byte[] StringToByte(string InString) 
+       { 
+           return _converter.GetBytes(InString); 
+       } 
+       #endregion 
+ 
+       #region 字节数组转化为字符串 
+       /// <summary> 
+       /// 字节数组转化为字符串（支持中文） 
+       /// </summary> 
+       /// <param name="InBytes">字节数组</param> 
+       /// <returns></returns> 
+       public static string ByteToString(byte[] InBytes) 
+       { 
+           return _converter.GetString(InBytes); 
+       } 
+       #endregion 
+   } 
+   }
